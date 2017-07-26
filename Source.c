@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "cdef.h"
 
-#define PROB 666
+#define PROB 667
 
 #define PROB1 1 
 #define PROB2 2 
@@ -17,11 +18,13 @@
 #define PROB3_2 12
 #define PROB3_3 13
 #define PROB3_4 14
+#define PROB3_5 15
 #define PROB3_6 16
 
 #define PROB4_1 21
 
 #define PROB666 666
+#define PROB667 667
 
 #if(PROB == PROB1)
 #define PARAM1 9
@@ -116,6 +119,27 @@ void printReg(unsigned char p);
 void retNrOf1Bits(unsigned char *p, unsigned long *count);
 #endif /* (PROB == PROB666) */
 
+void PROB_vCopyBits(uint16 u16Input, uint16 *u16Output, uint8 u8NrofBitsToCopy, uint8 u8StartBit)
+{
+	uint16 u16Mask;
+	u16Mask = (1 << u8NrofBitsToCopy) - 1;
+	//*u16Output &= (CDEF_nu32Max - (u16Mask << u8StartBit));
+	*u16Output &= (~(u16Mask << u8StartBit));
+	u16Mask =((u16Mask<<u8StartBit)& u16Input);
+
+	*u16Output |= u16Mask;
+}
+
+#define N 9
+void PROB_vWriteLR(uint8 u8paMat[N][N], uint8 u8aInput[], uint8 u8Line, uint8 u8Start, uint8 u8Stop);
+void PROB_vWriteRL(uint8 u8paMat[N][N], uint8 u8aInput[], uint8 u8Line, uint8 u8Start, uint8 u8Stop);
+void PROB_vWriteTB(uint8 u8paMat[N][N], uint8 u8aInput[], uint8 u8Col, uint8 u8Start, uint8 u8Stop);
+void PROB_vWriteBT(uint8 u8paMat[N][N], uint8 u8aInput[], uint8 u8Col, uint8 u8Start, uint8 u8Stop);
+void PROB_vWriteSpiral(uint8 u8paMat[N][N], uint8 u8aTab[]);
+
+uint8 j = 0;
+char i;
+
 int main()
 {
 	printf("\tHello\n\n");
@@ -201,6 +225,30 @@ int main()
 	retNrOf1Bits(&c, &count);
 	printf("\n%x -> %ld\n",c,count);
 #endif /* (PROB == PROB666) */
+
+	uint16 u16Input=0xaaaa;
+	uint16 u16Output=0xf0eb;
+	uint8  u8NrOfBits=4;
+	uint8  u8BitPos=12;
+
+	/* Read from console*/
+	//scanf("Input=%d\n Ouput=%d\n Nr Of Bits to Swap=%d\n Bit Start Position=%d\n", &u16Input, &u16Output, &u8NrOfBits, &u8BitPos);
+	/* Do the magic */
+	PROB_vCopyBits(u16Input, &u16Output, u8NrOfBits, u8BitPos);
+	
+	/* Write them to console; HEX*/
+	printf("Input=%x\n Ouput=%x\n ", u16Input, u16Output);
+
+	printf("\n\n\n");
+	j = 0;
+	uint8 u8paMat[N][N], u8aInput[N*N];
+	for (i = 1; i <= N*N; i++)
+	{
+		u8aInput[i - 1] = i;
+	}
+
+	PROB_vWriteSpiral(u8paMat, u8aInput);
+
 	printf("\n");
 	return 0;
 }
@@ -391,7 +439,7 @@ int search(int val, int vec[])
 	{
 		if (vec[i] == val)
 			return (i + 1);
-	}
+	}\
 	return -22;
 }
 #elif (SearchMethod == FastSearch)
@@ -565,3 +613,74 @@ void retNrOf1Bits(unsigned char *p,unsigned long *count)
 	}
 }
 #endif /* (PROB == PROB666) */
+
+#if(PROB == PROB667)
+void PROB_vWriteLR(uint8 u8paMat[N][N], uint8 u8aInput[], uint8 u8Line, uint8 u8Start, uint8 u8Stop)
+{
+	//uint8 i;
+	for (i = u8Start; i < u8Stop; i++)
+	{
+		u8paMat[u8Line][i] = u8aInput[j];
+		j++;
+	}
+}
+
+void PROB_vWriteRL(uint8 u8paMat[N][N], uint8 u8aInput[], uint8 u8Line, uint8 u8Start, uint8 u8Stop)
+{
+	//uint8 i;
+	for (i = u8Start; i >= u8Stop; i--)
+	{
+		u8paMat[u8Line][i] = u8aInput[j];
+		j++;
+	}
+}
+
+void PROB_vWriteTB(uint8 u8paMat[N][N], uint8 u8aInput[], uint8 u8Col, uint8 u8Start, uint8 u8Stop)
+{
+	//uint8 i;
+	for (i = u8Start; i < u8Stop; i++)
+	{
+		u8paMat[i][u8Col] = u8aInput[j];
+		j++;
+	}
+}
+
+void PROB_vWriteBT(uint8 u8paMat[N][N], uint8 u8aInput[], uint8 u8Col, uint8 u8Start, uint8 u8Stop)
+{
+	//uint8 i;
+	for (i = u8Start; i >= u8Stop; i--)
+	{
+		u8paMat[i][u8Col] = u8aInput[j];
+		j++;
+	}
+}
+
+void PROB_vWriteSpiral(uint8 u8paMat[N][N], uint8 u8aTab[])
+{
+	uint8 u8Count = 0, i, j;
+	/*
+	PROB_vWriteLR(u8paMat, u8aTab, count, count, N - count);
+	*/
+	while (u8Count < N/2)
+	{
+		PROB_vWriteLR(u8paMat, u8aTab, u8Count, u8Count, N - u8Count);
+		PROB_vWriteTB(u8paMat, u8aTab, N - (u8Count + 1), u8Count + 1, N - (u8Count + 1));
+		PROB_vWriteRL(u8paMat, u8aTab, N - (u8Count + 1), N - (u8Count + 1), u8Count);
+		PROB_vWriteBT(u8paMat, u8aTab, u8Count, N - (u8Count + 2), (u8Count + 1));
+		u8Count++;
+	}
+	if (N % 2 != 0)
+	{
+		u8paMat[(N - 1) / 2][(N - 1) / 2] = u8aTab[N*N - 1];
+	}
+	for (i = 0; i < N; i++)
+	{
+		for (j = 0; j < N; j++)
+		{
+			printf("%2d\t",u8paMat[i][j]);
+		}
+		printf("\n\n\n");
+	}
+}
+
+#endif /* (PROB == PROB667) */
